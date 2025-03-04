@@ -1,13 +1,13 @@
 // Dữ liệu mẫu của 8 người chơi
 const players = [
-    { name: "Player 1", score1: 10, score2: 15, score3: 20 },
-    { name: "Player 2", score1: 12, score2: 14, score3: 18 },
-    { name: "Player 3", score1: 8, score2: 17, score3: 22 },
-    { name: "Player 4", score1: 15, score2: 13, score3: 19 },
-    { name: "Player 5", score1: 9, score2: 16, score3: 21 },
-    { name: "Player 6", score1: 11, score2: 19, score3: 16 },
-    { name: "Player 7", score1: 13, score2: 10, score3: 17 },
-    { name: "Player 8", score1: 14, score2: 12, score3: 18 }
+    { name: "Thọ Cá Kiểng", score1: 0, score2: 0, score3: 0 },
+    { name: "Diddy Máy Khâu", score1: 0, score2: 0, score3: 0 },
+    { name: "Phạm Phương Tâm", score1: 0, score2: 0, score3: 0 },
+    { name: "Ruksi", score1: 0, score2: 0, score3: 0 },
+    { name: "Một Đời Liêm Khiết", score1: 0, score2: 0, score3: 0 },
+    { name: "TìnhThếPhútChót", score1: 0, score2: 0, score3: 0 },
+    { name: "Lượm Tội Đồ", score1: 13, score2: 10, score3: 17 },
+    { name: "Bé Nhi Spam", score1: 14, score2: 12, score3: 18 }
 ];
 
 // Hàm tính tổng điểm của mỗi người chơi
