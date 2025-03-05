@@ -1,31 +1,171 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bảng Xếp Hạng TFT</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bảng Xếp Hạng TFT</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: white;
+      color: black;
+    }
+    table {
+      width: 60%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      color: black;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid yellow; /* Đổi màu viền bảng thành vàng */
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: center;
+    }
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+    td:nth-child(1) {
+      width: 60px;
+    }
+    td:nth-child(2) {
+      width: 200px;
+    }
+    td:nth-child(3), td:nth-child(4), td:nth-child(5), td:nth-child(6) {
+      width: 70px;
+    }
+    input[type="text"] {
+      width: 90%;
+      text-align: center;
+      border: 2px solid white;
+      border-radius: 8px;
+      padding: 5px;
+      font-size: 16px;
+    }
+    input[type="number"] {
+      width: 70px;
+      text-align: center;
+      border: 2px solid white;
+      border-radius: 8px;
+      padding: 5px;
+      font-size: 16px;
+    }
+    .btn {
+      padding: 12px 25px;
+      margin: 20px auto;
+      display: block;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn:hover {
+      background-color: #218838;
+    }
+    .image-container {
+      margin: 20px auto;
+      text-align: center;
+    }
+    .image-container img {
+      max-width: 25%;
+      height: auto;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Bảng Xếp Hạng TFT</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>Hạng</th>
-                    <th>Người Chơi</th>
-                    <th>Game 1</th>
-                    <th>Game 2</th>
-                    <th>Game 3</th>
-                    <th>Tổng Điểm</th>
-                </tr>
-            </thead>
-            <tbody id="rankingTable">
-                <!-- Dữ liệu sẽ được cập nhật ở đây -->
-            </tbody>
-        </table>
-    </div>
+  <div class="image-container">
+    <img src="C:/Users/PC/Documents/test/logo.png" alt="Bảng Xếp Hạng TFT">
+  </div>
+  <table id="leaderboard">
+    <thead>
+      <tr>
+        <th>Hạng</th>
+        <th>Tên Người Chơi</th>
+        <th>Game 1</th>
+        <th>Game 2</th>
+        <th>Game 3</th>
+        <th>Tổng Điểm</th>
+      </tr>
+    </thead>
+    <tbody>
+      <script>
+        for (let i = 1; i <= 8; i++) {
+          document.write(`
+            <tr>
+              <td class="rank">-</td>
+              <td><input type="text" class="player-name" value="Người Chơi ${i}"></td>
+              <td><input type="number" min="1" max="8" class="round" data-round="1"></td>
+              <td><input type="number" min="1" max="8" class="round" data-round="2"></td>
+              <td><input type="number" min="1" max="8" class="round" data-round="3"></td>
+              <td class="score">0</td>
+            </tr>
+          `);
+        }
+      </script>
+    </tbody>
+  </table>
+  <button class="btn" onclick="calculateScores()">Tính Điểm & Xếp Hạng</button>
+  
+  <script>
+    function calculatePoints(rank) {
+      return rank >= 1 && rank <= 8 ? 9 - rank : 0;
+    }
 
-    <script src="script.js"></script>
+    function calculateScores() {
+      let rows = Array.from(document.querySelectorAll("#leaderboard tbody tr"));
+      
+      // Tính tổng điểm cho mỗi người chơi và số lần đứng trong top 3
+      rows.forEach(row => {
+        let totalScore = 0;
+        let top3Count = 0;
+        row.querySelectorAll("input.round").forEach(input => {
+          const rank = parseInt(input.value) || 0;
+          totalScore += calculatePoints(rank);
+          
+          // Đếm số lần đứng trong top 3
+          if (rank >= 1 && rank <= 3) {
+            top3Count++;
+          }
+        });
+        
+        row.querySelector(".score").textContent = totalScore;
+        row.setAttribute('data-top3', top3Count); // Lưu số lần top 3
+      });
+      
+      // Sắp xếp bảng theo tổng điểm, sau đó xét số lần đứng top 3
+      rows.sort((a, b) => {
+        const scoreA = parseInt(a.querySelector(".score").textContent);
+        const scoreB = parseInt(b.querySelector(".score").textContent);
+        
+        // Nếu tổng điểm giống nhau, xét số lần đứng trong top 3
+        if (scoreA === scoreB) {
+          const top3A = parseInt(a.getAttribute('data-top3'));
+          const top3B = parseInt(b.getAttribute('data-top3'));
+          
+          // Nếu một người chơi có 2 lần top 3, sẽ xếp trên người kia
+          if (top3A === 2 && top3B < 2) return -1;
+          if (top3B === 2 && top3A < 2) return 1;
+          
+          return top3B - top3A; // Sắp xếp theo số lần đứng top 3
+        }
+        return scoreB - scoreA; // Nếu điểm tổng khác nhau, sắp xếp theo tổng điểm
+      });
+
+      // Cập nhật lại thứ hạng sau khi sắp xếp
+      rows.forEach((row, index) => {
+        row.querySelector(".rank").textContent = index + 1;
+        document.querySelector("#leaderboard tbody").appendChild(row);
+      });
+    }
+  </script>
 </body>
 </html>
