@@ -83,7 +83,7 @@
 </head>
 <body>
   <div class="image-container">
-    <img src="logo.png" alt="Bảng Xếp Hạng TFT">
+    <img src="C:/Users/PC/Documents/test/logo.png" alt="Bảng Xếp Hạng TFT">
   </div>
   <table id="leaderboard">
     <thead>
@@ -116,37 +116,56 @@
   <button class="btn" onclick="calculateScores()">Tính Điểm & Xếp Hạng</button>
   
   <script>
-    function saveData() {
-      let players = [];
-      document.querySelectorAll("#leaderboard tbody tr").forEach(row => {
-        let player = {
-          name: row.querySelector(".player-name").value,
-          scores: Array.from(row.querySelectorAll("input.round")).map(input => input.value)
-        };
-        players.push(player);
-      });
-      localStorage.setItem("tftLeaderboard", JSON.stringify(players));
+    function calculatePoints(rank) {
+      return rank >= 1 && rank <= 8 ? 9 - rank : 0;
     }
 
-    function loadData() {
-      let data = localStorage.getItem("tftLeaderboard");
-      if (data) {
-        let players = JSON.parse(data);
-        document.querySelectorAll("#leaderboard tbody tr").forEach((row, index) => {
-          if (players[index]) {
-            row.querySelector(".player-name").value = players[index].name;
-            row.querySelectorAll("input.round").forEach((input, i) => {
-              input.value = players[index].scores[i] || "";
-            });
+    function calculateScores() {
+      let rows = Array.from(document.querySelectorAll("#leaderboard tbody tr"));
+      
+      // Tính tổng điểm cho mỗi người chơi và số lần đứng trong top 3
+      rows.forEach(row => {
+        let totalScore = 0;
+        let top3Count = 0;
+        row.querySelectorAll("input.round").forEach(input => {
+          const rank = parseInt(input.value) || 0;
+          totalScore += calculatePoints(rank);
+          
+          // Đếm số lần đứng trong top 3
+          if (rank >= 1 && rank <= 3) {
+            top3Count++;
           }
         });
-      }
-    }
+        
+        row.querySelector(".score").textContent = totalScore;
+        row.setAttribute('data-top3', top3Count); // Lưu số lần top 3
+      });
+      
+      // Sắp xếp bảng theo tổng điểm, sau đó xét số lần đứng top 3
+      rows.sort((a, b) => {
+        const scoreA = parseInt(a.querySelector(".score").textContent);
+        const scoreB = parseInt(b.querySelector(".score").textContent);
+        
+        // Nếu tổng điểm giống nhau, xét số lần đứng trong top 3
+        if (scoreA === scoreB) {
+          const top3A = parseInt(a.getAttribute('data-top3'));
+          const top3B = parseInt(b.getAttribute('data-top3'));
+          
+          // Nếu một người chơi có 2 lần top 3, sẽ xếp trên người kia
+          if (top3A === 2 && top3B < 2) return -1;
+          if (top3B === 2 && top3A < 2) return 1;
+          
+          return top3B - top3A; // Sắp xếp theo số lần đứng top 3
+        }
+        return scoreB - scoreA; // Nếu điểm tổng khác nhau, sắp xếp theo tổng điểm
+      });
 
-    document.addEventListener("DOMContentLoaded", loadData);
-    document.querySelectorAll("input").forEach(input => {
-      input.addEventListener("input", saveData);
-    });
+      // Cập nhật lại thứ hạng sau khi sắp xếp
+      rows.forEach((row, index) => {
+        row.querySelector(".rank").textContent = index + 1;
+        document.querySelector("#leaderboard tbody").appendChild(row);
+      });
+    }
   </script>
 </body>
 </html>
